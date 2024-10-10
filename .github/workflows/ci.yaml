@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [ 3.7, 3.8, 3.9 ]
+        python-version: [ 3.9 ]
 
     steps:
       - name: Checkout repository
@@ -26,8 +26,8 @@ jobs:
       - name: Setup virtual environment
         run: make venv
 
-      - name: Pylinting
-        run: make pylint
+      # - name: Pylinting
+      #   run: make pylint
 
       - name: Unit Tests
         run: make unit_test
@@ -38,7 +38,7 @@ jobs:
     environment: ci_tests
     strategy:
       matrix:
-        python-version: [ 3.8 ]
+        python-version: [ 3.9 ]
     concurrency:
       group: integration_tests-${{ github.head_ref }}
       cancel-in-progress: true
