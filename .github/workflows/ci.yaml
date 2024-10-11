@@ -62,7 +62,7 @@ jobs:
 
       - name: Integration tests
         run: |
-          echo "${{ secrets.TARGET_SNOWFLAKE_S3_KEY_PREFIX }}" > ./rsa_key.p8
+          echo "${{ secrets.TARGET_SNOWFLAKE_PRIVATE_KEY }}" > ./rsa_key.p8
           make integration_test
           rm ./rsa_key.p8
         env:
