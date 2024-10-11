@@ -29,8 +29,14 @@ jobs:
       # - name: Pylinting
       #   run: make pylint
 
+      - name: Create dummy RSA key file
+        run: echo "Dummy RSA key" > ./rsa_key.p8
+
       - name: Unit Tests
         run: make unit_test
+
+      - name: Remove dummy RSA key file
+        run: rm ./dummy_rsa_key.p8
 
   integration_test:
     name: Integration Testing
@@ -55,6 +61,9 @@ jobs:
       - name: Setup virtual environment
         run: make venv
 
+      - name: Create RSA key file
+        run: echo "${{ secrets.TARGET_SNOWFLAKE_PRIVATE_KEY }}" > ./rsa_key.p8
+
       - name: Integration tests
         run: make integration_test
         env:
@@ -72,3 +81,6 @@ jobs:
           TARGET_SNOWFLAKE_FILE_FORMAT_CSV: ${{ secrets.TARGET_SNOWFLAKE_FILE_FORMAT_CSV }}
           TARGET_SNOWFLAKE_FILE_FORMAT_PARQUET: ${{ secrets.TARGET_SNOWFLAKE_FILE_FORMAT_PARQUET }}
           CLIENT_SIDE_ENCRYPTION_MASTER_KEY: ${{ secrets.TARGET_SNOWFLAKE_CLIENT_SIDE_ENCRYPTION_MASTER_KEY }}
+
+      - name: Remove RSA key file
+        run: rm ./rsa_key.p8
