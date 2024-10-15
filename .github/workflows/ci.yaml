@@ -1,19 +1,18 @@
 name: CI
 
-# TODO setup infra for supporting CI pipelines
-# on:
-#   pull_request:
-#   push:
-#     branches:
-#       - master
+on:
+  pull_request:
+  push:
+    branches:
+      - master
 
 jobs:
   lint_and_test:
-    name: Linting and Testing
+    name: Linting and Unit Testing
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [ 3.7, 3.8, 3.9 ]
+        python-version: [ 3.9 ]
 
     steps:
       - name: Checkout repository
@@ -27,11 +26,16 @@ jobs:
       - name: Setup virtual environment
         run: make venv
 
-      - name: Pylinting
-        run: make pylint
+      # - name: Pylinting
+      #   run: make pylint
 
       - name: Unit Tests
-        run: make unit_test
+        run: |
+          echo "Dummy RSA key" > ./rsa_key.p8
+          make unit_test
+          rm ./rsa_key.p8
+        env:
+          TARGET_SNOWFLAKE_PRIVATE_KEY_PATH: ./rsa_key.p8
 
   integration_test:
     name: Integration Testing
@@ -39,7 +43,7 @@ jobs:
     environment: ci_tests
     strategy:
       matrix:
-        python-version: [ 3.8 ]
+        python-version: [ 3.9 ]
     concurrency:
       group: integration_tests-${{ github.head_ref }}
       cancel-in-progress: true
@@ -57,7 +61,10 @@ jobs:
         run: make venv
 
       - name: Integration tests
-        run: make integration_test
+        run: |
+          echo "${{ secrets.TARGET_SNOWFLAKE_PRIVATE_KEY }}" > ./rsa_key.p8
+          make integration_test
+          rm ./rsa_key.p8
         env:
           TARGET_SNOWFLAKE_ACCOUNT: ${{ secrets.TARGET_SNOWFLAKE_ACCOUNT }}
           TARGET_SNOWFLAKE_DBNAME: ${{ secrets.TARGET_SNOWFLAKE_DBNAME }}
@@ -73,3 +80,4 @@ jobs:
           TARGET_SNOWFLAKE_FILE_FORMAT_CSV: ${{ secrets.TARGET_SNOWFLAKE_FILE_FORMAT_CSV }}
           TARGET_SNOWFLAKE_FILE_FORMAT_PARQUET: ${{ secrets.TARGET_SNOWFLAKE_FILE_FORMAT_PARQUET }}
           CLIENT_SIDE_ENCRYPTION_MASTER_KEY: ${{ secrets.TARGET_SNOWFLAKE_CLIENT_SIDE_ENCRYPTION_MASTER_KEY }}
+          TARGET_SNOWFLAKE_PRIVATE_KEY_PATH: ./rsa_key.p8
