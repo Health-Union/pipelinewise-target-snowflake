@@ -34,7 +34,6 @@ def validate_config(config):
         'account',
         'dbname',
         'user',
-        'password',
         'warehouse',
         's3_bucket',
         'stage',
@@ -45,7 +44,6 @@ def validate_config(config):
         'account',
         'dbname',
         'user',
-        'password',
         'warehouse',
         'file_format'
     ]
@@ -347,19 +345,47 @@ class DbSync:
             sys.exit(1)
 
 
+    def _load_private_key(self, key_encoding: Encoding = Encoding.PEM, encoding: str=None) -> Union[bytes,str]:
+        """
+        Load private key from file
+
+        key_encoding:  The encoding of the private key. PEM or DER
+        encoding:      The encoding of the private key. utf-8 or None
+
+        Returns:
+            The private key in bytes or string format
+        """
+        # /rsa_key.p8
+        key_path = self.connection_config.get(
+                        "private_key_path", "./rsa_key.p8")
+        password = self.connection_config.get(
+                        "private_key_password", None)
+        with open(key_path, 'rb') as pem_in:
+            private_key_obj = load_pem_private_key(
+                pem_in.read(), password=password, backend=default_backend())
+        
+        private_key_raw = private_key_obj.private_bytes(
+            key_encoding, PrivateFormat.PKCS8, NoEncryption())
+        
+        return private_key_raw.decode(encoding) if encoding else private_key_raw
+
     def open_connection(self):
         """Open snowflake connection"""
         stream = None
         if self.stream_schema_message:
             stream = self.stream_schema_message['stream']
 
-        return snowflake.connector.connect(
-            user=self.connection_config['user'],
-            password=self.connection_config['password'],
+        # handling the case when a private_key is not provided in the config
+        if not ( private_key := self.connection_config.get('private_der_key') ):
+            private_key = self._load_private_key(key_encoding=Encoding.DER)
+
+        connection_dict = dict(
+            user=self.connection_config['user'],            
             account=self.connection_config['account'],
             database=self.connection_config['dbname'],
             warehouse=self.connection_config['warehouse'],
             role=self.connection_config.get('role', None),
+            private_key=private_key,
             autocommit=True,
             session_parameters={
                 # Quoted identifiers should be case sensitive
@@ -369,6 +395,10 @@ class DbSync:
                                               schema=self.schema_name,
                                               table=self.table_name(stream, False, True))
             }
+        )
+
+        return snowflake.connector.connect(
+            **connection_dict,   
         )
 
     def query(self, query: Union[str, List[str]], params: Dict = None, max_records=0) -> List[Dict]:
@@ -621,19 +651,6 @@ class DbSync:
             )
             return pipe_args
 
-        def _load_private_key():
-            key_path = self.connection_config.get(
-                               "private_key_path", "/rsa_key.p8")
-            password = self.connection_config.get(
-                               "private_key_password", None)
-            with open(key_path, 'rb') as pem_in:
-                private_key_obj = load_pem_private_key(
-                    pem_in.read(), password=password, backend=default_backend())
-
-            private_key_text = private_key_obj.private_bytes(
-                Encoding.PEM, PrivateFormat.PKCS8, NoEncryption()).decode('utf-8')
-            return private_key_text
-
         def _increment_value(exponentially=False):
             previous = 0
             current = 1
@@ -691,7 +708,7 @@ class DbSync:
                 "An error was encountered while creating the snowpipe, %s", error)
 
         #  Private key encription required to perform snowpipe data transfer
-        private_key_text = _load_private_key()
+        private_key_text = self._load_private_key(key_encoding=Encoding.PEM, encoding='utf-8')
 
         ingest_manager = SimpleIngestManager(account=self.connection_config['account'].split('.')[0],
                                              host=self.connection_config['account'] +
