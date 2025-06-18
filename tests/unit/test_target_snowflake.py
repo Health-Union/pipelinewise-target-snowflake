@@ -253,7 +253,7 @@ class TestTargetSnowflake(unittest.TestCase):
             'stage': dummy_stage,
             's3_key_prefix': 'dummy_key_prefix/',
             'load_via_snowpipe': True,
-            'private_key_path': os.environ.get('TARGET_SNOWFLAKE_PRIVATE_KEY_PATH')
+            'private_key_base64': os.environ.get('TARGET_SNOWFLAKE_PRIVATE_KEY_BASE64')
         }
 
         s3_config = {}
@@ -306,7 +306,7 @@ class TestTargetSnowflake(unittest.TestCase):
             's3_key_prefix': 'dummy_key_prefix/',
             'load_via_snowpipe': True,
             'on_error': "CONTINUE",
-            'private_key_path': os.environ.get('TARGET_SNOWFLAKE_PRIVATE_KEY_PATH')
+            'private_key_base64': os.environ.get('TARGET_SNOWFLAKE_PRIVATE_KEY_BASE64')
         }
 
         s3_config = {}

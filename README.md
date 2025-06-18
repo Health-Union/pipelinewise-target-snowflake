@@ -251,14 +251,16 @@ To develop with docker:
   TARGET_SNOWFLAKE_STAGE=CI_PPW.CI_PPW_STAGE
   TARGET_SNOWFLAKE_FILE_FORMAT_CSV=CI_PPW.CI_PPW_CSV
   TARGET_SNOWFLAKE_FILE_FORMAT_PARQUET=CI_PPW.CI_PPW_PARQUET
-  TARGET_SNOWFLAKE_PRIVATE_KEY_PATH=/app/rsa_key.p8
+  TARGET_SNOWFLAKE_PRIVATE_KEY_BASE64=LMNtLS1CRUdJTiBQUk...S0vbLQ==
   TARGET_SNOWFLAKE_S3_ACL=
   CLIENT_SIDE_ENCRYPTION_MASTER_KEY=
   CLIENT_SIDE_ENCRYPTION_STAGE_OBJECT=
   ```
-  Also you need to create `rsa_key.p8` file in the root directory of the repository with the private ssh key for the `TARGET_SNOWFLAKE_USER` user. (You can choose another path for the file, but in this case you should change `TARGET_SNOWFLAKE_PRIVATE_KEY_PATH` in the `.docker-env` file.)
+
+  It is important to provide the TARGET_SNOWFLAKE_PRIVATE_KEY_BASE64 in base64 format. You can easily convert the private key to base64 using `cat <your_id_rsa> | base64`.
   Short-term AWS credentials can be found on the AWS start page `xxxxxxxxxx.awsapps.com/start`, choosing the appropriate AWS account you want to access and clicking on `Command Line or Programmatic Access`.
   `TARGET_SNOWFLAKE_S3_ACL`, `CLIENT_SIDE_ENCRYPTION_MASTER_KEY` and `CLIENT_SIDE_ENCRYPTION_STAGE_OBJECT` variables should be present in the configuration but with empty values.
+  
 2. Build the work container with 
 ```
 docker build . -t ppw-snowflake-target
