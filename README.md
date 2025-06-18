@@ -186,7 +186,6 @@ Full list of options in `config.json`:
   export TARGET_SNOWFLAKE_ACCOUNT=<snowflake-account-name>
   export TARGET_SNOWFLAKE_DBNAME=<snowflake-database-name>
   export TARGET_SNOWFLAKE_USER=<snowflake-user>
-  export TARGET_SNOWFLAKE_PASSWORD=<snowflake-password>
   export TARGET_SNOWFLAKE_WAREHOUSE=<snowflake-warehouse>
   export TARGET_SNOWFLAKE_SCHEMA=<snowflake-schema>
   export TARGET_SNOWFLAKE_AWS_ACCESS_KEY=<aws-access-key-id>
@@ -240,7 +239,6 @@ To develop with docker:
   TARGET_SNOWFLAKE_ACCOUNT=********.us-east-1
   TARGET_SNOWFLAKE_DBNAME=CI_PIPELINEWISE
   TARGET_SNOWFLAKE_USER=********
-  TARGET_SNOWFLAKE_PASSWORD=********
   TARGET_SNOWFLAKE_WAREHOUSE=DEVELOPER_MEDIUM
   TARGET_SNOWFLAKE_SCHEMA=<any-new-schema-name>
   TARGET_SNOWFLAKE_AWS_ACCESS_KEY=**********
