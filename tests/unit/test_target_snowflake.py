@@ -205,7 +205,6 @@ class TestTargetSnowflake(unittest.TestCase):
             'account': "dummy-value",
             'dbname': "dummy-value",
             'user': "dummy-value",
-            'password': "dummy-value",
             'warehouse': "dummy-value",
             'default_target_schema': "dummy-target-schema",
             'file_format': "dummy-value",
@@ -245,7 +244,6 @@ class TestTargetSnowflake(unittest.TestCase):
             'account': "dummy-value",
             'dbname': dummy_db_name,
             'user': "dummy-value",
-            'password': "dummy-value",
             'warehouse': "dummy-value",
             'default_target_schema': dummy_target_schema,
             'file_format': dummy_file_format,
@@ -253,7 +251,7 @@ class TestTargetSnowflake(unittest.TestCase):
             'stage': dummy_stage,
             's3_key_prefix': 'dummy_key_prefix/',
             'load_via_snowpipe': True,
-            'private_key_path': os.environ.get('TARGET_SNOWFLAKE_PRIVATE_KEY_PATH')
+            'private_key_base64': os.environ.get('TARGET_SNOWFLAKE_PRIVATE_KEY_BASE64')
         }
 
         s3_config = {}
@@ -297,7 +295,6 @@ class TestTargetSnowflake(unittest.TestCase):
             'account': "dummy-value",
             'dbname': dummy_db_name,
             'user': "dummy-value",
-            'password': "dummy-value",
             'warehouse': "dummy-value",
             'default_target_schema': dummy_target_schema,
             'file_format': dummy_file_format,
@@ -306,7 +303,7 @@ class TestTargetSnowflake(unittest.TestCase):
             's3_key_prefix': 'dummy_key_prefix/',
             'load_via_snowpipe': True,
             'on_error': "CONTINUE",
-            'private_key_path': os.environ.get('TARGET_SNOWFLAKE_PRIVATE_KEY_PATH')
+            'private_key_base64': os.environ.get('TARGET_SNOWFLAKE_PRIVATE_KEY_BASE64')
         }
 
         s3_config = {}
@@ -315,7 +312,7 @@ class TestTargetSnowflake(unittest.TestCase):
         DbSync_obj = db_sync.DbSync({**minimal_config, **s3_config}, schema_record)
 
 
-        input_stream = {"stream1": DbSync_obj}        
+        input_stream = {"stream1": DbSync_obj}
 
         expected_value = f"""create pipe {dummy_db_name}.{dummy_target_schema}.{dummy_stream_name}_s3_pipe as
                             copy into {dummy_db_name}.{dummy_target_schema}."{dummy_stream_name}" ("_SDC_DELETED_AT", "CID", "CVARCHAR")

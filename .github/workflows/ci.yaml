@@ -31,11 +31,10 @@ jobs:
 
       - name: Unit Tests
         run: |
-          echo "Dummy RSA key" > ./rsa_key.p8
+          echo "Running Unit Tests"
           make unit_test
-          rm ./rsa_key.p8
         env:
-          TARGET_SNOWFLAKE_PRIVATE_KEY_PATH: ./rsa_key.p8
+          TARGET_SNOWFLAKE_PRIVATE_KEY_BASE64: ${{ secrets.TARGET_SNOWFLAKE_PRIVATE_KEY_BASE64 }}
 
   integration_test:
     name: Integration Testing
@@ -62,9 +61,8 @@ jobs:
 
       - name: Integration tests
         run: |
-          echo "${{ secrets.TARGET_SNOWFLAKE_PRIVATE_KEY }}" > ./rsa_key.p8
+          echo "Running Integration Tests"
           make integration_test
-          rm ./rsa_key.p8
         env:
           TARGET_SNOWFLAKE_ACCOUNT: ${{ secrets.TARGET_SNOWFLAKE_ACCOUNT }}
           TARGET_SNOWFLAKE_DBNAME: ${{ secrets.TARGET_SNOWFLAKE_DBNAME }}
@@ -80,4 +78,4 @@ jobs:
           TARGET_SNOWFLAKE_FILE_FORMAT_CSV: ${{ secrets.TARGET_SNOWFLAKE_FILE_FORMAT_CSV }}
           TARGET_SNOWFLAKE_FILE_FORMAT_PARQUET: ${{ secrets.TARGET_SNOWFLAKE_FILE_FORMAT_PARQUET }}
           CLIENT_SIDE_ENCRYPTION_MASTER_KEY: ${{ secrets.TARGET_SNOWFLAKE_CLIENT_SIDE_ENCRYPTION_MASTER_KEY }}
-          TARGET_SNOWFLAKE_PRIVATE_KEY_PATH: ./rsa_key.p8
+          TARGET_SNOWFLAKE_PRIVATE_KEY_BASE64: ${{ secrets.TARGET_SNOWFLAKE_PRIVATE_KEY_BASE64 }}

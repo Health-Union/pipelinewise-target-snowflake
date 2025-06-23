@@ -3,6 +3,7 @@ import sys
 import snowflake.connector
 import re
 import time
+import base64
 
 from typing import List, Dict, Union, Tuple, Set
 from singer import get_logger
@@ -44,6 +45,7 @@ def validate_config(config):
         'account',
         'dbname',
         'user',
+        'private_key_base64',
         'warehouse',
         'file_format'
     ]
@@ -345,9 +347,9 @@ class DbSync:
             sys.exit(1)
 
 
-    def _load_private_key(self, key_encoding: Encoding = Encoding.PEM, encoding: str=None) -> Union[bytes,str]:
+    def _convert_private_key(self, key_encoding: Encoding = Encoding.PEM, encoding: str=None) -> Union[bytes,str]:
         """
-        Load private key from file
+        Converting private key fro base64 to PEM or DER format
 
         key_encoding:  The encoding of the private key. PEM or DER
         encoding:      The encoding of the private key. utf-8 or None
@@ -355,14 +357,16 @@ class DbSync:
         Returns:
             The private key in bytes or string format
         """
-        # /rsa_key.p8
-        key_path = self.connection_config.get(
-                        "private_key_path", "./rsa_key.p8")
+        
+
+        private_key_b64 = self.connection_config.get(
+                        "private_key_base64")        
+        private_key = base64.b64decode(private_key_b64)
+
         password = self.connection_config.get(
                         "private_key_password", None)
-        with open(key_path, 'rb') as pem_in:
-            private_key_obj = load_pem_private_key(
-                pem_in.read(), password=password, backend=default_backend())
+        private_key_obj = load_pem_private_key(
+                private_key, password=password, backend=default_backend())
         
         private_key_raw = private_key_obj.private_bytes(
             key_encoding, PrivateFormat.PKCS8, NoEncryption())
@@ -374,10 +378,8 @@ class DbSync:
         stream = None
         if self.stream_schema_message:
             stream = self.stream_schema_message['stream']
-
-        # handling the case when a private_key is not provided in the config
-        if not ( private_key := self.connection_config.get('private_der_key') ):
-            private_key = self._load_private_key(key_encoding=Encoding.DER)
+        
+        private_key_der = self._convert_private_key(key_encoding=Encoding.DER)
 
         connection_dict = dict(
             user=self.connection_config['user'],            
@@ -385,7 +387,7 @@ class DbSync:
             database=self.connection_config['dbname'],
             warehouse=self.connection_config['warehouse'],
             role=self.connection_config.get('role', None),
-            private_key=private_key,
+            private_key=private_key_der,
             autocommit=True,
             session_parameters={
                 # Quoted identifiers should be case sensitive
@@ -708,7 +710,7 @@ class DbSync:
                 "An error was encountered while creating the snowpipe, %s", error)
 
         #  Private key encription required to perform snowpipe data transfer
-        private_key_text = self._load_private_key(key_encoding=Encoding.PEM, encoding='utf-8')
+        private_key_text = self._convert_private_key(key_encoding=Encoding.PEM, encoding='utf-8')
 
         ingest_manager = SimpleIngestManager(account=self.connection_config['account'].split('.')[0],
                                              host=self.connection_config['account'] +
