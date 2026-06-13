@@ -4,6 +4,20 @@ import itertools
 import json
 import re
 
+PREFERRED_SCHEMA_TYPES = ('string', 'array', 'object')
+
+
+def preferred_type(type_value):
+    if isinstance(type_value, str):
+        return type_value if type_value in PREFERRED_SCHEMA_TYPES else None
+
+    if isinstance(type_value, list):
+        for schema_type in PREFERRED_SCHEMA_TYPES:
+            if schema_type in type_value:
+                return schema_type
+
+    return None
+
 
 def flatten_key(k, parent_key, sep):
     """
