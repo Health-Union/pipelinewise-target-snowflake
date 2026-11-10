@@ -1,3 +1,11 @@
+2.5.3+hu (2026-11-06)
+-------------------
+
+*Security*
+- DATA-12437: update snowflake-connector-python[pandas] 3.15.0 -> 4.8.1 (fixes known client vulnerabilities flagged by Snowflake Trust Center, e.g. CVE-2026-85525, CVE-2026-86600, CVE-2026-86597; first safe version is 4.7.3)
+- Relax certifi pin to >=2026.10.18 (required by snowflake-connector-python 4.8.1)
+- Pin `pyarrow>=14.0.1,<26.0.0`: connector 4.x no longer caps pyarrow, and pyarrow 26+ requires NumPy 2 while we keep `numpy<2.0.0` (fixes integration tests: `pyarrow requires NumPy 2.0 or newer`)
+
 2.4.1 (2026-02-06)
 -------------------
 

@@ -6,7 +6,7 @@ with open('README.md') as f:
     long_description = f.read()
 
 setup(name="pipelinewise-target-snowflake",
-      version="2.5.2+hu",
+      version="2.5.3+hu",
       description="Singer.io target for loading data to Snowflake - PipelineWise compatible",
       long_description=long_description,
       long_description_content_type='text/markdown',
@@ -25,7 +25,8 @@ setup(name="pipelinewise-target-snowflake",
       install_requires=[
           'pipelinewise-singer-python==3.0.2',
           'numpy<2.0.0',         #  numpy 2.X is not compatible with our used pandas
-          'snowflake-connector-python[pandas]==3.15.0',
+          'pyarrow>=14.0.1,<26.0.0',  # pyarrow 26+ requires numpy 2; connector 4.x no longer caps pyarrow
+          'snowflake-connector-python[pandas]==4.8.1',
           'inflection==0.5.1',
           'joblib==1.2.0',
           'boto3>=1.35.0',
@@ -34,7 +35,7 @@ setup(name="pipelinewise-target-snowflake",
           'requests>=2.26.0',
 		  'oscrypto @ https://github.com/wbond/oscrypto/archive/d5f3437ed24257895ae1edd9e503cfb352e635a8.zip',
           'snowflake-ingest==1.0.12',
-          "certifi==2025.1.31",
+          "certifi>=2026.10.18",
       ],
       extras_require={
           "test": [
